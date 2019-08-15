@@ -1,19 +1,58 @@
-import React from 'react';
+import React, { Component } from 'react';
 
 import Modal from '../../components/UI/Modal/Modal';
 import Auxiliary from '../Auxiliary/Auxiliary';
 
-const withErrorHandler = (WrappedComponent) => {
-    return (props) => {
-        return (
-            <Auxiliary>
-                <Modal show>
-                    Something didn't work!
-                </Modal>
-                <WrappedComponent {...props} />
-            </Auxiliary>
-        );
-    }
+const withErrorHandler = (WrappedComponent, axios) => {
+    return class extends Component {
+
+        // constructor(props) {
+        //     super(props);
+
+        //     this.state = {
+        //         error: null
+        //     };
+        // }
+
+        state = {
+            error: null
+        }
+
+        componentWillMount() {
+            this.reqInterceptor = axios.interceptors.request.use(req => {
+                this.setState({ error: null });
+                return req;
+            });
+
+            this.resInterceptor = axios.interceptors.response.use(res => res, error => {
+                this.setState({ error: error });
+            })
+        }
+
+        componentWillUnmount() {
+            console.log("Will Unmount", this.reqInterceptor, this.resInterceptor);
+            
+            axios.interceptors.request.eject(this.reqInterceptor);
+            axios.interceptors.response.eject(this.resInterceptor);
+        }
+
+        errorConfirmedHandler = () => {
+            this.setState({ error: null });
+        }
+
+        render() {
+            return (
+                <Auxiliary>
+                    <Modal
+                        show={this.state.error}
+                        modalClosed={this.errorConfirmedHandler}>
+                        {this.state.error ? this.state.error.message : null}
+                    </Modal>
+                    <WrappedComponent {...this.props} />
+                </Auxiliary>
+            );
+        }
+    };
 };
 
 export default withErrorHandler;

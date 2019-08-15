@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 
 import Auxiliary from '../../../hoc/Auxiliary/Auxiliary';
 import Button from '../../UI/Button/Button';
+import { Link } from 'react-router-dom';
 
 class OrderSummary extends Component {
     // The can be functional component, dosen't have to be class component.
@@ -26,8 +27,10 @@ class OrderSummary extends Component {
                 </ul>
                 <p><strong>Total Price: {this.props.price.toFixed(2)}</strong></p>
                 <p>Continue to Checkpoint?</p>
-                <Button btnType="Danger" clicked={this.props.purchasCancelled}>CANCEL</Button>
-                <Button btnType="Success" clicked={this.props.purchasContinued}>CONTINUE</Button>
+                    <Button btnType="Danger" clicked={this.props.purchasCancelled}>CANCEL</Button>
+                <Link to="/checkoutSummary">
+                    <Button btnType="Success" clicked={this.props.purchasContinued}>CONTINUE</Button>
+                </Link>
             </Auxiliary>);
     }
 }
