@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 
 import Auxiliary from '../../../hoc/Auxiliary/Auxiliary';
 import Button from '../../UI/Button/Button';
-import { Link } from 'react-router-dom';
 
 class OrderSummary extends Component {
     // The can be functional component, dosen't have to be class component.
