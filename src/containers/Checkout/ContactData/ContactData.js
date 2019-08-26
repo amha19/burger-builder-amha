@@ -17,7 +17,12 @@ class ContactData extends Component {
                     type: 'text',
                     placeholder: 'Your Name'
                 },
-                value: ''
+                value: '',
+                validation: {
+                    required: true
+                },
+                valid: false,
+                touched: false
             },
             street: {
                 elementType: 'input',
@@ -25,7 +30,12 @@ class ContactData extends Component {
                     type: 'text',
                     placeholder: 'Street'
                 },
-                value: ''
+                value: '',
+                validation: {
+                    required: true
+                },
+                valid: false,
+                touched: false
             },
             zipCode: {
                 elementType: 'input',
@@ -33,7 +43,14 @@ class ContactData extends Component {
                     type: 'text',
                     placeholder: 'ZIP Code'
                 },
-                value: ''
+                value: '',
+                validation: {
+                    required: true,
+                    minLength: 5,
+                    maxLength: 5
+                },
+                valid: false,
+                touched: false
             },
             country: {
                 elementType: 'input',
@@ -41,7 +58,12 @@ class ContactData extends Component {
                     type: 'text',
                     placeholder: 'Country'
                 },
-                value: ''
+                value: '',
+                validation: {
+                    required: true
+                },
+                valid: false,
+                touched: false
             },
             email: {
                 elementType: 'input',
@@ -49,19 +71,27 @@ class ContactData extends Component {
                     type: 'email',
                     placeholder: 'Your E-mail'
                 },
-                value: ''
+                value: '',
+                validation: {
+                    required: true
+                },
+                valid: false,
+                touched: false
             },
             deliveryMethod: {
                 elementType: 'select',
                 elementConfig: {
                     options: [
-                        {value: 'faster', displayValue: 'Faster'},
-                        {value: 'cheapest', displayValue: 'Cheapest'}
+                        { value: 'faster', displayValue: 'Faster' },
+                        { value: 'cheapest', displayValue: 'Cheapest' }
                     ]
                 },
-                value: ''
+                value: 'faster',
+                valid: true,
+                validation: {}
             }
         },
+        isAllValied: false,
         loading: false
     }
 
@@ -74,7 +104,18 @@ class ContactData extends Component {
 
         this.setState({ loading: true });
 
-        
+        const formData = {};
+        for (let formElemIdentifier in this.state.orderForm) {
+            formData[formElemIdentifier] = this.state.orderForm[formElemIdentifier].value;
+        }
+
+        const order = {
+            ingredients: this.props.ingredients,
+            price: this.props.price,
+            orderData: formData
+        }
+        console.log("formData: ", formData);
+
         axios.post('orders.json ', order)
             .then(response => {
                 this.setState({ loading: false });
@@ -87,15 +128,67 @@ class ContactData extends Component {
         // console.log(this.props);
     }
 
+    checkValidity = (value, rules) => {
+        let isValid = true;
+
+        if (rules.required) {
+            isValid = value.trim() !== '' && isValid;
+        }
+
+        if (rules.minLength) {
+            isValid = value.length >= rules.minLength && isValid
+        }
+
+        if (rules.maxLength) {
+            isValid = value.length <= rules.maxLength && isValid
+        }
+
+        return isValid;
+    }
+
+    inputChangeHandler = (event, inputIdentifier) => {
+        const updatedOrderForm = { ...this.state.orderForm };
+        const updatedElement = { ...updatedOrderForm[inputIdentifier] };
+
+        updatedElement.value = event.target.value;
+        updatedElement.valid = this.checkValidity(updatedElement.value, updatedElement.validation);
+        updatedElement.touched = true;
+        updatedOrderForm[inputIdentifier] = updatedElement;
+
+        let isValid = true;
+        for(let inIdentifier in updatedOrderForm) {
+            isValid = updatedOrderForm[inIdentifier].valid && isValid;
+        }
+
+        this.setState({ orderForm: updatedOrderForm, isAllValied: isValid });
+    }
+
     render() {
-        const formElement = [];
-        
+        const formElementArray = [];
+        for (let key in this.state.orderForm) {
+            formElementArray.push({
+                id: key,
+                config: this.state.orderForm[key]
+            });
+        }
+
         let form = (
             <form >
-                <Input elementType="..." elementConfig="..." value="..." />
-                <Button
+                {formElementArray.map(formElement => (
+                    <Input
+                        key={formElement.id}
+                        elementType={formElement.config.elementType}
+                        elementConfig={formElement.config.elementConfig}
+                        value={formElement.config.value}
+                        invalied={!formElement.config.valid}
+                        touched={formElement.config.touched}
+                        shouldValidate={formElement.config.validation}
+                        changed={(event) => this.inputChangeHandler(event, formElement.id)} />
+                ))}
+                <Button                    
                     btnType="Success"
-                    clicked={this.orderHandler}>Order</Button>
+                    clicked={this.orderHandler}
+                    disabled={!this.state.isAllValied}>Order</Button>
             </form>
         );
 
