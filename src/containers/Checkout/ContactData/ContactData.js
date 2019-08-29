@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
+import { Redirect } from 'react-router-dom';
 
 import Button from '../../../components/UI/Button/Button';
 import styles from './ContactData.module.css';
@@ -7,7 +8,7 @@ import axios from '../../../axios-orders';
 import Spinner from '../../../components/UI/Spinner/Spinner';
 import Input from '../../../components/UI/Input/Input';
 import withErrorHandler from '../../../hoc/withErrorHandler/withErrorHandler';
-import * as orderActions from '../../../store/index';
+import * as orderActions from '../../../store/actions/index';
 
 class ContactData extends Component {
 
@@ -90,7 +91,7 @@ class ContactData extends Component {
                         {value: 'cheapest', displayValue: 'Cheapest'}
                     ]
                 },
-                value: '',
+                value: 'fastest',
                 validation: {},
                 valid: true
             }
@@ -98,7 +99,7 @@ class ContactData extends Component {
         isAllValied: false
     }
     componentDidMount() {
-        console.log("ConD: ", this.props.price);
+        console.log("ConD: ", this.props);
     }
 
     orderHandler = (event) => {
@@ -115,6 +116,10 @@ class ContactData extends Component {
         }
         
         this.props.onOrderBurger(order);
+        // setTimeout(() => {
+        //     this.props.history.push("/");
+        // }, 900);
+       
     }
 
     checkValidity = (value, rules) => {
@@ -197,7 +202,7 @@ class ContactData extends Component {
         if (this.props.loading) {
             form = <Spinner />
         }
-
+        
         return (
             <div className={styles.ContactData}>
                 <h3>Enter your Contact Data</h3>
@@ -209,9 +214,10 @@ class ContactData extends Component {
 
 const mapStateToProps = state => {
     return {
-        ings: state.BurgerBuilder.ingredients,
-        price: state.BurgerBuilder.totalPrice,
-        loading: state.order.loading
+        ings: state.burgerBuilder.ingredients,
+        price: state.burgerBuilder.totalPrice,
+        loading: state.order.loading,
+        purchased: state.order.purchased
     }
 };
 
