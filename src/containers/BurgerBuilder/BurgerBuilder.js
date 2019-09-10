@@ -14,9 +14,7 @@ import * as actions from '../../store/actions/index';
 class BurgerBuilder extends Component {
     // constructor(props) {
     //     super(props);
-    //     this.state = {
-
-    //     };
+    //     this.state = { };
     // };
 
     state = {
@@ -67,10 +65,8 @@ class BurgerBuilder extends Component {
 
         let orderSummary = null;
         
-        let burger = this.props.error ? <p>The ingredients are not loading.</p> : <Spinner />;        
-        if(!this.props.ings) {
-            burger = <div>burger</div>
-        }
+        let burger = this.props.error ? <p>The ingredients are not loading.</p> : <Spinner />;    
+
         if (this.props.ings) {
             burger = (
                 <Auxiliary>

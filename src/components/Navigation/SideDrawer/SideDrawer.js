@@ -6,20 +6,20 @@ import styles from './SideDrawer.module.css';
 import Backdrop from '../../UI/Backdrop/Backdrop';
 import Auxiliary from '../../../hoc/Auxiliary/Auxiliary';
 
-const sideDrawer = ( props ) => {
+const sideDrawer = (props) => {
     let attachedstyles = [styles.SideDrawer, styles.Close];
     if (props.open) {
         attachedstyles = [styles.SideDrawer, styles.Open];
     }
     return (
         <Auxiliary>
-            <Backdrop show={props.open} clicked={props.closed}/>
+            <Backdrop show={props.open} clicked={props.closed} />
             <div className={attachedstyles.join(' ')}>
                 <div className={styles.Logo}>
                     <Logo />
                 </div>
                 <nav>
-                    <NavigationItems />
+                    <NavigationItems isAuth={props.isAuth} />
                 </nav>
             </div>
         </Auxiliary>
@@ -27,3 +27,4 @@ const sideDrawer = ( props ) => {
 };
 
 export default sideDrawer;
+
