@@ -1,11 +1,13 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
+import { Redirect } from 'react-router-dom';
 
 import Input from '../../components/UI/Input/Input';
 import Button from '../../components/UI/Button/Button';
 import styles from './Auth.module.css';
 import * as actions from '../../store/actions/index';
 import Spinner from '../../components/UI/Spinner/Spinner';
+import { updateObject, checkValidity } from '../../shared/utility';
 
 class Auth extends Component {
     state = {
@@ -42,47 +44,33 @@ class Auth extends Component {
         isSignup: true
     }
 
-    checkValidity = (value, rules) => {
-        let isValid = true;
-        if (!rules) {
-            return true;
+    componentDidMount() {
+        if (!this.props.buildingBurger) {
+            this.props.onSetAuthRedirectPath();
         }
-
-        if (rules.required) {
-            isValid = value.trim() !== '' && isValid;
-        }
-
-        if (rules.minLength) {
-            isValid = value.length >= rules.minLength && isValid
-        }
-
-        if (rules.maxLength) {
-            isValid = value.length <= rules.maxLength && isValid
-        }
-
-        if (rules.isEmail) {
-            const pattern = /[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/;
-            isValid = pattern.test(value) && isValid
-        }
-
-        if (rules.isNumeric) {
-            const pattern = /^\d+$/;
-            isValid = pattern.test(value) && isValid
-        }
-
-        return isValid;
     }
-    //needs change orderForm
+    
     inputChangeHandler = (event, controlName) => {
-        const updatedControls = {
-            ...this.state.controls,
-            [controlName]: {
-                ...this.state.controls[controlName],
-                value: event.target.value,
-                valid: this.checkValidity(event.target.value, this.state.controls[controlName].validation),
-                touched: true
-            }
-        }
+        /** if i choose not to use the utility function.    */
+        // const updatedControls = {
+        //     ...this.state.controls,
+        //     [controlName]: {
+        //         ...this.state.controls[controlName],
+        //         value: event.target.value,
+        //         valid: this.checkValidity(event.target.value, this.state.controls[controlName].validation),
+        //         touched: true
+        //     }
+        // }
+
+        const updatedControlElems = updateObject(this.state.controls[controlName], {
+            value: event.target.value,
+            valid: checkValidity(event.target.value, this.state.controls[controlName].validation),
+            touched: true
+        });
+
+        const updatedControls = updateObject(this.state.controls, {
+            [controlName]: updatedControlElems
+        })
 
         this.setState({ controls: updatedControls });
     }
@@ -90,6 +78,13 @@ class Auth extends Component {
     submitHandler = (event) => {
         event.preventDefault();
         this.props.onAuth(this.state.controls.email.value, this.state.controls.password.value, this.state.isSignup);
+
+        // if(this.props.buildingBurger) {
+        //     this.props.onSetAuthRedirectPath('/checkoutSummary');
+        // } else {
+        //     this.props.onSetAuthRedirectPath('/');
+        // }
+
     }
 
     switchAuthModeHandler = () => {
@@ -108,7 +103,7 @@ class Auth extends Component {
         }
 
         let form = <Spinner />
-        if(!this.props.loading) {
+        if (!this.props.loading) {
             form = formElementArray.map(formElement => (
                 <Input
                     key={formElement.id}
@@ -123,13 +118,18 @@ class Auth extends Component {
         }
 
         let errorMessage = null;
-        if(this.props.error) {
-            errorMessage = <p style={{color: 'red'}}>{this.props.error.message}</p>
+        if (this.props.error) {
+            errorMessage = <p style={{ color: 'red' }}>{this.props.error.message}</p>
         }
 
+        let authRedirect = null;
+        if (this.props.isAuth) {
+            authRedirect = <Redirect to={this.props.authRedirectPath} />
+        }
 
         return (
             <div className={styles.Auth}>
+                {authRedirect}
                 {errorMessage}
                 <form onSubmit={this.submitHandler}>
                     {form}
@@ -146,13 +146,17 @@ class Auth extends Component {
 const mapStateToProps = state => {
     return {
         loading: state.auth.loading,
-        error: state.auth.error
+        error: state.auth.error,
+        isAuth: state.auth.token !== null,
+        buildingBurger: state.burgerBuilder.building && state.burgerBuilder.totalPrice > 4,
+        authRedirectPath: state.auth.authRedirectPath
     }
 };
 
 const mapDispatchToProps = dispatch => {
     return {
-        onAuth: (email, password, isSignup) => dispatch(actions.auth(email, password, isSignup))
+        onAuth: (email, password, isSignup) => dispatch(actions.auth(email, password, isSignup)),
+        onSetAuthRedirectPath: () => dispatch(actions.setAuthRedirectPath('/'))
     }
 };
 

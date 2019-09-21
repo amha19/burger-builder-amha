@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { Redirect } from 'react-router-dom';
 
 import Button from '../../../components/UI/Button/Button';
 import styles from './ContactData.module.css';
@@ -9,6 +8,7 @@ import Spinner from '../../../components/UI/Spinner/Spinner';
 import Input from '../../../components/UI/Input/Input';
 import withErrorHandler from '../../../hoc/withErrorHandler/withErrorHandler';
 import * as orderActions from '../../../store/actions/index';
+import { updateObject, checkValidity } from '../../../shared/utility';
 
 class ContactData extends Component {
 
@@ -98,10 +98,7 @@ class ContactData extends Component {
         },
         isAllValied: false
     }
-    componentDidMount() {
-        console.log("ConD: ", this.props);
-    }
-
+    
     orderHandler = (event) => {
         event.preventDefault();
         const formData = {};
@@ -112,7 +109,8 @@ class ContactData extends Component {
         const order = {
             ingredients: this.props.ings,
             price: this.props.price.toFixed(2),
-            orderData: formData
+            orderData: formData,
+            userId: this.props.userId
         }
         
         this.props.onOrderBurger(order, this.props.token);
@@ -120,49 +118,28 @@ class ContactData extends Component {
         //     this.props.history.push("/");
         // }, 900);
        
-    }
-
-    checkValidity = (value, rules) => {
-        let isValid = true;
-        if (!rules) {
-            return true;
-        }
-        
-        if (rules.required) {
-            isValid = value.trim() !== '' && isValid;
-        }
-
-        if (rules.minLength) {
-            isValid = value.length >= rules.minLength && isValid
-        }
-
-        if (rules.maxLength) {
-            isValid = value.length <= rules.maxLength && isValid
-        }
-
-        if (rules.isEmail) {
-            const pattern = /[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/;
-            isValid = pattern.test(value) && isValid
-        }
-
-        if (rules.isNumeric) {
-            const pattern = /^\d+$/;
-            isValid = pattern.test(value) && isValid
-        }
-
-        return isValid;
-    }
+    }    
 
     inputChangeHandler = (event, inputIdentifier) => {
-        const updatedOrderForm = { ...this.state.orderForm };
-        const updatedElement = { ...updatedOrderForm[inputIdentifier] };
+        /** if i choose not to use the utility function.    */
+        // const updatedOrderForm = { ...this.state.orderForm };
+        // const updatedElement = { ...updatedOrderForm[inputIdentifier] };
+        // updatedElement.value = event.target.value;
+        // updatedElement.valid = this.checkValidity(updatedElement.value, updatedElement.validation);
+        // updatedElement.touched = true;
+        // updatedOrderForm[inputIdentifier] = updatedElement;
+        
+        const updatedElement = updateObject(this.state.orderForm[inputIdentifier], {
+           value:  event.target.value,
+           valid: checkValidity(event.target.value, this.state.orderForm[inputIdentifier].validation),
+           touched: true
+        });
 
-        updatedElement.value = event.target.value;
-        updatedElement.valid = this.checkValidity(updatedElement.value, updatedElement.validation);
-        updatedElement.touched = true;
-        updatedOrderForm[inputIdentifier] = updatedElement;
+        const updatedOrderForm = updateObject(this.state.orderForm, {
+            [inputIdentifier]: updatedElement
+        });
 
-        let isValid = true;
+       let isValid = true;
         for(let inIdentifier in updatedOrderForm) {
             isValid = updatedOrderForm[inIdentifier].valid && isValid;
         }
@@ -218,7 +195,8 @@ const mapStateToProps = state => {
         price: state.burgerBuilder.totalPrice,
         loading: state.order.loading,
         purchased: state.order.purchased,
-        token: state.auth.token
+        token: state.auth.token,
+        userId: state.auth.userId
     }
 };
 

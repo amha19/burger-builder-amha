@@ -1,5 +1,5 @@
 import * as actionTypes from '../actions/actionTypes';
-import { updateObject } from '../utility';
+import { updateObject } from '../../shared/utility';
 
 const initialState = {
     orders: [],
@@ -12,7 +12,7 @@ const purchaseInit = (state, action) => {
 };
 
 const purchaseBurgerStart = (state, action) => {
-    return updateObject(state, { loading: false });
+    return updateObject(state, { loading: true });
 };
 
 const purchaseBurgerSuccess = (state, action) => {
@@ -43,6 +43,13 @@ const fetchOrdersFail = (state, action) => {
     return updateObject(state, { loading: false });
 };
 
+const removeOrder = (state, action) => {
+    const newwOrder = state.orders.filter(order => order.id !== action.orderId)
+    return updateObject(state, {
+        orders: newwOrder
+    });
+};
+
 const reducer = (state = initialState, action) => {
     switch (action.type) {
         case actionTypes.PURCHASE_INIT: return purchaseInit(state, action);
@@ -52,12 +59,7 @@ const reducer = (state = initialState, action) => {
         case actionTypes.FETCH_ORDERS_START: return fetchOrdersStart(state, action);
         case actionTypes.FETCH_ORDERS_SUCCESS: return fetchOrdersSuccess(state, action);
         case actionTypes.FETCH_ORDERS_FAIL: return fetchOrdersFail(state, action);
-        case actionTypes.REMOVE_ORDER:
-            const newwOrder = state.orders.filter(order => order.id !== action.orderId) 
-        return {
-            ...state,
-            orders: newwOrder
-        }
+        case actionTypes.REMOVE_ORDER: return removeOrder(state, action);
         default: return state;
     }
 };
