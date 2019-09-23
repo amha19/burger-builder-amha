@@ -6,6 +6,9 @@
     text-align: center;
     font-weight: bold;
     font-size: 1.2rem;
+    display: flex;  
+    flex-direction: column;
+    align-items: center;        
 }
 
 @media (min-width: 500px) and (max-height: 400px) {
@@ -24,7 +27,7 @@
 
 @media (min-width: 1000px) and (min-height: 700px) {
     .Burger {
-        width: 700px;
-        height: 600px;
+        width: 600px;
+        height: 470px;
     }
 }

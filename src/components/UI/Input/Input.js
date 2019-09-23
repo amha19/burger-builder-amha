@@ -46,6 +46,11 @@ const input = (props) => {
     if(props.invalied && props.touched) {
         validationError = <p className={styles.ValidationError}>Please inster the correct {props.elementType}!</p>
     }
+
+    if(props.invalied && props.touched && props.elementConfig.type === 'email') {
+        validationError = <p className={styles.ValidationError}>Please inster the correct {props.elementType} e.g. example@example.com!</p>
+    }
+
     return (
         <div className={styles.Input}>
             <label className={styles.Label}>{props.label}</label>
