@@ -21,6 +21,10 @@ This app is a burger ordering app that allows users to build a burger and order 
 
 ![burger Project](https://user-images.githubusercontent.com/34722096/108782151-ad38e880-7530-11eb-9115-baf691814ed7.gif)
 
+### `npm install`
+
+Installs all dependencies.
+
 ### `npm start`
 
 Runs the app in the development mode.<br>
